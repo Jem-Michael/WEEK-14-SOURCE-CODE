@@ -904,6 +904,26 @@ class NewtonRaphsonApp:
         self.trail.add_heading("STOPPING CONDITION")
         self.trail.log(reason)
 
+        # VERIFICATION
+        self.trail.add_heading("VERIFICATION")
+        try:
+            residual = f(x)
+            abs_residual = abs(residual)
+            self.trail.log(f"Root substituted: x = {x:.12g}")
+            self.trail.log(f"f(x) = {residual:.6e}")
+            self.trail.log(f"|f(x)| = {abs_residual:.6e}")
+            if abs_residual < tol:
+                self.trail.log_success(f"✓ VERIFIED: |f(x)| = {abs_residual:.6e} < tolerance ({tol})")
+            elif abs_residual < 1e-6:
+                self.trail.log_success(f"✓ VERIFIED: |f(x)| = {abs_residual:.6e} < 1e-6")
+            elif abs_residual < 1e-3:
+                self.trail.log(f"⚠ CAUTION: |f(x)| = {abs_residual:.6e} < 1e-3")
+            else:
+                self.trail.log_error(f"✗ VERIFICATION FAILED: |f(x)| = {abs_residual:.6e}")
+        except Exception as e:
+            self.trail.log_error(f"✗ VERIFICATION ERROR: {str(e)}")
+            self.trail.log("Could not verify the computed root due to evaluation error.")
+
         # SUMMARY
         self.trail.add_heading("SUMMARY")
         self.trail.log(f"Method: {method}")
